@@ -26,7 +26,7 @@ public class MvcConfig implements WebMvcConfigurer {
     }
 
 
-    //Bean for supporting hidden methods (when Thymleaf working with Patch, Delete methods)
+    //Bean for supporting hidden methods (when Thymeleaf working with Patch, Delete methods)
     @Bean
     public FilterRegistrationBean hiddenHttpMethodFilter() {
         FilterRegistrationBean filterRegistrationBean = new FilterRegistrationBean(new HiddenHttpMethodFilter());

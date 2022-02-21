@@ -67,37 +67,7 @@
             <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
               <p><strong>Все пользователи</strong></p>
 
-                <div class="col-5">
-                  <table class="table caption-top">
-                    <thead>
-                      <tr>
-                        <th scope="col">ID</th>
-                        <th scope="col">Имя</th>
-                        <th scope="col">Фамилия</th>
-                        <th scope="col">Возраст</th>
-                        <th scope="col">Логин</th>
-                        <th scope="col">Роли</th>
-                        <th scope="col">Редактировать</th>
-                        <th scope="col">Удалить</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                    <tr th:each="user : ${users}">
-                      <th scope="row" th:utext="${user.id}">...</th>
-                      <td th:utext="${user.name}">...</td>
-                      <td th:utext="${user.lastName}">...</td>
-                      <td th:utext="${user.age}">...</td>
-                      <td th:utext="${user.username}">...</td>
-                      <td th:utext="${user.getRolesToString()}">...</td>
-                      <td>
-                        <a th:href="@{/admin/findOne/(id=${user.id})}" class="btn btn-success eBtn">Редактировать</a>
-                      </td>
-                      <td>
-                        <a th:href="@{/admin/findOne/(id=${user.id})}" class="btn btn-danger delBtn">Удалить</a>
-                      </td>
-                    </tr>
-                    </tbody>
-                  </table>
+                <div class="col-5" id="allUsersTable">
                 </div>
 
             </div>
@@ -106,7 +76,7 @@
 
               <div class="row">
                 <div class="col"></div>
-
+                <!--Форма ввода нового пользователя-->
                 <form class="col-2" th:action="@{/admin}" th:method="post" th:object="${newuser}" th:align="center">
                   <div class="row">
                     <p><strong>Добавьте нового пользователя</strong></p>
@@ -166,6 +136,7 @@
                     <button type="submit" class="btn btn-success">Создать</button>
                   </div>
                 </form>
+
                 <div class="col"></div>
               </div>
 
@@ -298,44 +269,121 @@
 
 <script type="text/javascript">
 
-  $(document).ready(function(){
+  const urlFindById = 'http://localhost:8080/data/findOne?id=';
 
-    $('.table .eBtn').on('click', function(event){
-      event.preventDefault();
-      var href = $(this).attr('href');
+  let allModalRegistration = () => {
 
-      $.get(href, function(user, status){
-        $('.myEditForm #id').val(user.id);
-        $('.myEditForm #name').val(user.name);
-        $('.myEditForm #lastName').val(user.lastName);
-        $('.myEditForm #age').val(user.age);
-        $('.myEditForm #username').val(user.username);
-        $('.myEditForm #password').val(user.password);
-        $('.myEditForm #eRoles').val(user.rolesInString);
-        $('.myEditForm #roles').val(user.roles);
+    $(document).ready(function(){
+
+      $('.table .eBtn').on('click', function(event){
+        event.preventDefault();
+        console.log('Edit Modal Window opening')
+        let href = $(this).attr('href');
+        const userId = $(this).attr('value');
+        console.log('href1=' + href);
+        console.log('value=' + userId);
+        href = urlFindById + userId;
+        console.log('href2=' + href)
+
+        /*запрос JQuery к базе данных*/
+        $.get(href, function(user, status){
+          $('.myEditForm #id').val(user.id);
+          $('.myEditForm #name').val(user.name);
+          $('.myEditForm #lastName').val(user.lastName);
+          $('.myEditForm #age').val(user.age);
+          $('.myEditForm #username').val(user.username);
+          $('.myEditForm #password').val(user.password);
+          $('.myEditForm #eRoles').val(user.rolesInString);
+          $('.myEditForm #roles').val(user.roles);
+        });
+
+        $('.myEditForm #exampleModalEdit').modal();
       });
 
-      $('.myEditForm #exampleModalEdit').modal();
-    });
+      $('.table .delBtn').on('click', function(event){
+        event.preventDefault();
+          console.log('Delete Modal Window opening')
+        let href = $(this).attr('href');
+          console.log('href1=' + href);
+        const userId = $(this).attr('value');4
+        href = urlFindById + userId;
+          console.log('href2=' + href);
 
-    $('.table .delBtn').on('click', function(event){
-      event.preventDefault();
-      var href = $(this).attr('href');
+        /*запрос JQuery к базе данных*/
+        $.get(href, function(user, status){
+          $('.myDeleteForm #id').val(user.id);
+          $('.myDeleteForm #name').val(user.name);
+          $('.myDeleteForm #lastName').val(user.lastName);
+          $('.myDeleteForm #age').val(user.age);
+          $('.myDeleteForm #username').val(user.username);
+          $('.myDeleteForm #password').val(user.password);
+          $('.myDeleteForm #eRoles').val(user.rolesInString);
+        });
 
-      $.get(href, function(user, status){
-        $('.myDeleteForm #id').val(user.id);
-        $('.myDeleteForm #name').val(user.name);
-        $('.myDeleteForm #lastName').val(user.lastName);
-        $('.myDeleteForm #age').val(user.age);
-        $('.myDeleteForm #username').val(user.username);
-        $('.myDeleteForm #password').val(user.password);
-        $('.myDeleteForm #eRoles').val(user.rolesInString);
+        $('.myDeleteForm #exampleModalDelete').modal();
       });
 
-      $('.myDeleteForm #exampleModalDelete').modal();
     });
 
-  });
+  }
+  
+
+  const urlFindAll = 'http://localhost:8080/data/findAll';
+  const usersTable = document.querySelector('#allUsersTable');
+  let output = '';
+
+  let fillTable = (users) => {
+    output += `
+            <table class="table caption-top">
+                    <thead>
+                      <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">Имя</th>
+                        <th scope="col">Фамилия</th>
+                        <th scope="col">Возраст</th>
+                        <th scope="col">Логин</th>
+                        <th scope="col">Роли</th>
+                        <th scope="col">Редактировать</th>
+                        <th scope="col">Удалить</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+    `;
+
+    users.forEach(user => {
+      output += `
+                    <tr>
+                      <th scope="row" th:utext="">${user.id}</th>
+                      <td th:utext="">${user.name}</td>
+                      <td th:utext="">${user.lastName}</td>
+                      <td th:utext="">${user.age}</td>
+                      <td th:utext="">${user.username}</td>
+                      <td th:utext="">${user.rolesToString}</td>
+                      <td>
+                        <a th:href="@{/data/findOne/(id=${user.id})}" class="btn btn-success eBtn" value="${user.id}">Редактировать</a>
+                      </td>
+                      <td>
+                        <a th:href="@{/data/findOne/(id=${user.id})}" class="btn btn-danger delBtn" value="${user.id}">Удалить</a>
+                      </td>
+                    </tr>
+      `;
+    });
+
+    output += `
+    </tbody>
+                  </table>
+    `;
+    usersTable.innerHTML = output;
+  }
+
+
+  fetch(urlFindAll)
+    .then(response => response.json())
+    .then((data) => {
+      fillTable(data);
+      allModalRegistration();
+    });
+
 
 </script>
 
