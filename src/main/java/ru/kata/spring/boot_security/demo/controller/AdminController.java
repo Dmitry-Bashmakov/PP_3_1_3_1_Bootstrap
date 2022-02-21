@@ -52,14 +52,6 @@ public class AdminController {
         return firstPage;
     }
 
-    @GetMapping("/findOne")
-    @ResponseBody
-    public MyUser findOne(@RequestParam(value = "id", required = true) Long id) {
-        MyUser user = userRepository.findUserById(id);
-        user.setRolesInString();
-        return user;
-    }
-
     @PatchMapping("/edit")
     public String updateUserFromModal(MyUser user) {
         usServ.update(user);
